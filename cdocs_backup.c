@@ -14,27 +14,22 @@ int error(int errornum) {
     return 0;
 }
 
-FILE* init_readme(char* filename) {
+int init_readme(char** argv) {
     FILE* readme;
-    if(filename) {
-        readme = fopen(filename, "w");
+    if(*(argv + 2)) {
+        readme = fopen(*(argv+2), "w");
     } 
     else { readme = fopen("README.md", "w"); }
     if (!readme) {
         error(2);
     }
-    return readme;
-}
-
-int handle_input(char** argv){
-    FILE* readme = init_readme(*(argv + 2));
     fclose(readme);
     return 0;
 }
 
 int main(int argc, char** argv) {
     if(argc < 2) { error(1); }
-    handle_input(argv);
+    init_readme(argv);
     exit(0);
     return 0;
 }
