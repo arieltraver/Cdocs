@@ -10,6 +10,12 @@ int error(int errornum) {
         case 2:
             fprintf(stderr, "Failed to open file\n");
             exit(2);
+        case 3:
+            fprintf(stderr, "fseek failed");
+            exit(3);
+        case 4:
+            fprintf(stderr, "fread failed");
+            exit(4);
     }
     return 0;
 }
@@ -25,6 +31,23 @@ FILE* init_readme(char* filename) {
     }
     return readme;
 }
+
+
+int filesize(FILE* file) {
+    if (fseek(file, 0, SEEK_END)) {error(3);}
+    int filesize = ftell(file);
+    rewind(file);
+    return filesize;
+}
+
+char* load_buffer(FILE* program){
+    int length = filesize(program);
+    char* buffer = malloc(sizeof(char) * length);
+    if fread((buffer, sizeof(char), length, program)) {
+        free(buffer);
+        error(4);
+    }
+} 
 
 int handle_input(char** argv){
     FILE* readme = init_readme(*(argv + 2));
