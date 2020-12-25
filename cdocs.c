@@ -110,24 +110,26 @@ int print_author(char* buffer) {
     * cls_delim, provided closing delimeter or none
 ***/
 int print_headers(char* buffer, char* opn_delim, char* cls_delim) {
-    char* end = strlen(buffer) + buffer;
+    char* end = buffer + strlen(buffer);
     char* cursor = strstr(buffer, opn_delim);
     char* close;
     char* title;
-    while(cursor < end && cursor) {
+    while(cursor && cursor < end) {
         close = strstr(cursor, cls_delim);
-        if(close) {*close = '\0';}
-        if((cursor-1<=buffer) || (*(cursor-1) != '\"')){
+	if(close) {*close = '\0';}
+        if((cursor>buffer) && *(cursor-1) != '\"'){
             cursor+=strlen(opn_delim);
-            title = strstr(cursor, "@function");
+	    title = strstr(cursor, "@function");
             if(title) { //nicely format the function title
                 printf("### Function:");
                 cursor = title + 9;
             }
             printf("%s\n", cursor);
-        }
-        cursor+=(strlen(cursor)+1);
-        if(cursor < end) { cursor = strstr(cursor, opn_delim);}
+	}
+	cursor+=(strlen(cursor)+1);
+	if(cursor < end) { 
+		cursor = strstr(cursor, opn_delim);
+	}
     }
     return 0;
 }
@@ -135,7 +137,7 @@ int print_headers(char* buffer, char* opn_delim, char* cls_delim) {
 
 int write_readme(int argc, char** argv, FILE* readme, FILE* program) {
     
-    int status;
+    int status = 1;
     pid_t pid = fork();
     if (pid < 0) {
         fclose(program);
