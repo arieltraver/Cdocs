@@ -1,8 +1,5 @@
-# cdocs2
+# cdocs
 ## Author: Ariel Traver
-
-_To turn this into a shell command, go to your zshrc (or bashrc) and make an alias to wherever you store the cdocs executable._
-
 ### Function: error
 * takes an input from some function and prints the appropriate error message, then quits.
 * parameters:

@@ -151,21 +151,21 @@ int write_readme(int argc, char** argv, FILE* readme, FILE* program) {
         }
 
         char* buffer = load_buffer(program); //load file into char array
-        char* opn_delim;
-        char* cls_delim;
+        char* opn_delim = "/***";
+        char* cls_delim = "***/";
 
-        if(argc < 3) { opn_delim = "/***";}
-        else { opn_delim = *(argv + 3); }
-        if (argc < 4) { cls_delim = "***/"; }
-        else { cls_delim = *(argv + 4); }
+        if(argc >=3) { opn_delim = *(argv + 3); }
+        if(argc>=4) { cls_delim = *(argv + 4); }
        
         char* name = clean_name(*(argv+1)); //get rid of .c / .py / etc
         printf("# %s\n", name); //big title in markdown
-        free(name); //no need for this
 
+        free(name); //no need for this
         print_author(buffer);
         print_headers(buffer, opn_delim, cls_delim);
-        exit(0);
+       
+	free(buffer); //free this child's version of buffer
+	exit(0);
     }    //get the author's name from line
     else { //we are a parent
         if (!waitpid(pid, &status, 0)) {
