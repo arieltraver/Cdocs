@@ -113,13 +113,15 @@ int write_readme(int argc, char** argv, FILE* readme, FILE* program) {
        
         char* name = clean_name(*(argv+1)); //get rid of .c / .py / etc
         printf("# %s\n", name); //big title in markdown
-        free(name); //no need for this
-        
-        char* author = strstr(buffer, "@author:"); //find the author line
-        if (author) {
-            printf("## *Author: %s*\n", author+8); //smaller heading italic
-        }
 
+        //get the author's name from line @author
+        char* author = strstr(buffer, "@author") + 8; //find the author line
+        strtok(author, "\n");
+        if (author >= 0) {
+            printf("## Author: %s\n", author);
+        }
+        author[strlen(author)] = '0';
+        free(name);
         exit(0);
     }
     else { //we are a parent
