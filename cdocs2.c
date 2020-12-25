@@ -4,6 +4,13 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
+//@author Ariel Traver
+
+/*** @function error
+* takes an input from some function and prints the appropriate error message, then quits.
+* parameters:
+    * errornum, the error code
+***/
 int error(int errornum) {
     switch (errornum) {
         case 1: 
@@ -34,10 +41,9 @@ int error(int errornum) {
     return 0;
 }
 
-/***
- * init_readme
- * opens a file where the readme will be written.
- * overwrites any existing readme files with the same name.
+/***@function init_readme
+* opens a file where the readme will be written.
+* overwrites any existing readme files with the same name.
 ***/
 FILE* init_readme(char* filename) {
     FILE* readme;
@@ -96,15 +102,30 @@ int print_author(char* buffer) {
     return 0;
 }
 
+/***@function print_headers
+* Prints all the lines contained within the specified delimeters
+* Parameters:
+    * buffer, the buffer containing text file contents
+    * opn_delim, provided opening delimeter or none
+    * cls_delim, provided closing delimeter or none
+***/
 int print_headers(char* buffer, char* opn_delim, char* cls_delim) {
     char* end = strlen(buffer) + buffer;
     char* cursor = strstr(buffer, opn_delim);
     char* close;
+    char* title;
     while(cursor < end && cursor) {
         close = strstr(cursor, cls_delim);
-        cursor+=strlen(opn_delim);
         if(close) {*close = '\0';}
-        printf("%s\n", cursor);
+        if((cursor-1<=buffer) || (*(cursor-1) != '\"')){
+            cursor+=strlen(opn_delim);
+            title = strstr(cursor, "@function");
+            if(title) { //nicely format the function title
+                printf("### Function:");
+                cursor = title + 9;
+            }
+            printf("%s\n", cursor);
+        }
         cursor+=(strlen(cursor)+1);
         if(cursor < end) { cursor = strstr(cursor, opn_delim);}
     }
@@ -145,7 +166,7 @@ int write_readme(int argc, char** argv, FILE* readme, FILE* program) {
         print_author(buffer);
         print_headers(buffer, opn_delim, cls_delim);
         exit(0);
-    }    //get the author's name from line @author
+    }    //get the author's name from line
     else { //we are a parent
         if (!waitpid(pid, &status, 0)) {
             error(8);

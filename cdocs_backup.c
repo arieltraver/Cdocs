@@ -4,6 +4,14 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
+//@author Ariel Traver
+
+/***
+ * error
+ * takes an input from some function and prints the appropriate error message, then quits.
+ * parameters:
+    * errornum, the error code
+***/
 int error(int errornum) {
     switch (errornum) {
         case 1: 
@@ -64,8 +72,8 @@ int filesize(FILE* file) {
 
 char* load_buffer(FILE* program){
     int length = filesize(program);
-    char* buffer = malloc(sizeof(char) * length);
-    if (fread(buffer, sizeof(char), length, program)) {
+    char* buffer = malloc(sizeof(char) * (length + 1));
+    if (!fread(buffer, sizeof(char), length, program)) {
         free(buffer);
         fclose(program);
         error(4);
@@ -82,6 +90,33 @@ char* clean_name(char* program_name) {
         *dot = '\0'; //cut off the .c, .py, etc
     }
     return name;
+}
+
+
+int print_author(char* buffer) {
+    //get the author's name from line @author
+    char* author = strstr(buffer, "@author") + 8; //find the author line
+    strtok(author, "\n");
+    if (author >= 0) {
+        printf("## Author: %s\n", author);
+    }
+    author[strlen(author)] = '9';
+    return 0;
+}
+
+int print_headers(char* buffer, char* opn_delim, char* cls_delim) {
+    char* end = strlen(buffer) + buffer;
+    char* cursor = strstr(buffer, opn_delim);
+    char* close;
+    while(cursor < end && cursor) {
+        close = strstr(cursor, cls_delim);
+        cursor+=strlen(opn_delim);
+        if(close) {*close = '\0';}
+        if((cursor-1<=buffer) || (*(cursor-1) != '\"')){printf("%s\n", cursor);}
+        cursor+=(strlen(cursor)+1);
+        if(cursor < end) { cursor = strstr(cursor, opn_delim);}
+    }
+    return 0;
 }
 
 
@@ -102,7 +137,7 @@ int write_readme(int argc, char** argv, FILE* readme, FILE* program) {
             error(7);
         }
 
-        char* buffer = load_buffer(program);
+        char* buffer = load_buffer(program); //load file into char array
         char* opn_delim;
         char* cls_delim;
 
@@ -114,14 +149,11 @@ int write_readme(int argc, char** argv, FILE* readme, FILE* program) {
         char* name = clean_name(*(argv+1)); //get rid of .c / .py / etc
         printf("# %s\n", name); //big title in markdown
         free(name); //no need for this
-        
-        char* author = strstr(buffer, "@author:");
-        if (author) {
-            printf("## *Author: %s*\n", author+8); //smaller heading italic
-        }
 
+        print_author(buffer);
+        print_headers(buffer, opn_delim, cls_delim);
         exit(0);
-    }
+    }    //get the author's name from line
     else { //we are a parent
         if (!waitpid(pid, &status, 0)) {
             error(8);
